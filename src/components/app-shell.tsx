@@ -126,11 +126,18 @@ export function AppShell({ children }: { children: ReactNode }) {
             {signedIn ? <NotificationBell /> : null}
 
             <Button
-              variant="outline"
+              asChild
+              variant="ghost"
               size="sm"
-              className="hidden lg:inline-flex"
-              onClick={signOut}
+              className={cn(
+                "hidden lg:inline-flex",
+                isActive("/account") && "bg-accent text-accent-foreground",
+              )}
             >
+              <Link to="/account">Account</Link>
+            </Button>
+
+            <Button variant="outline" size="sm" className="hidden lg:inline-flex" onClick={signOut}>
               Sign Out
             </Button>
 
@@ -147,6 +154,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/account">Account</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => void signOut()}>Sign Out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

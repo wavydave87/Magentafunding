@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { usePortalIdentity } from "@/hooks/use-portal-identity";
 import { supabase } from "@/integrations/supabase/client";
+import { validateNewPassword } from "@/lib/account-rules";
 import { portalDb, portalAction, isPartnerViewActive } from "@/lib/portal-db";
 import { PARTNER_TYPE_LABEL } from "@/lib/partner";
 import { updateOrganizationContact } from "@/lib/partner-team.functions";
@@ -195,12 +196,9 @@ function SettingsPage() {
 
   async function changePassword() {
     if (isPartnerViewActive()) { toast.error("Account security changes require the partner's own sign-in."); return; }
-    if (newPassword.length < 8) {
-      toast.error("Use at least 8 characters.");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      toast.error("Those passwords don't match.");
+    const passwordProblem = validateNewPassword(newPassword, confirmPassword);
+    if (passwordProblem) {
+      toast.error(passwordProblem);
       return;
     }
     setSavingPassword(true);

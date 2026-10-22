@@ -15,6 +15,7 @@ import { Route as PortalRouteRouteImport } from './routes/_portal/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PendingAccessRouteImport } from './routes/pending-access'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCommissionsRouteImport } from './routes/_authenticated/commissions'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -80,6 +81,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
@@ -290,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/pending-access': typeof PendingAccessRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/commissions': typeof AuthenticatedCommissionsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -333,6 +340,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/pending-access': typeof PendingAccessRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/commissions': typeof AuthenticatedCommissionsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -379,6 +387,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/pending-access': typeof PendingAccessRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/commissions': typeof AuthenticatedCommissionsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -424,6 +433,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/pending-access'
     | '/reset-password'
+    | '/account'
     | '/admin'
     | '/commissions'
     | '/dashboard'
@@ -467,6 +477,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/pending-access'
     | '/reset-password'
+    | '/account'
     | '/admin'
     | '/commissions'
     | '/dashboard'
@@ -512,6 +523,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/pending-access'
     | '/reset-password'
+    | '/_authenticated/account'
     | '/_authenticated/admin'
     | '/_authenticated/commissions'
     | '/_authenticated/dashboard'
@@ -613,6 +625,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/account': {
+      id: '/_authenticated/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AuthenticatedAccountRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
@@ -877,6 +896,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedCommissionsRoute: typeof AuthenticatedCommissionsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -890,6 +910,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedCommissionsRoute: AuthenticatedCommissionsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
