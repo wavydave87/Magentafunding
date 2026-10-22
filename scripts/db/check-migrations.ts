@@ -23,6 +23,8 @@ const REQUIRED_TABLES = [
   "partner_commissions",
 ];
 
+const REQUIRED_BUCKETS = ["closing-documents", "partner-documents", "partner-resources"];
+
 const db = new PGlite({ extensions: { pgcrypto } });
 
 try {
@@ -53,6 +55,14 @@ const present = new Set(rows.map((row) => row.table_name));
 const missing = REQUIRED_TABLES.filter((table) => !present.has(table));
 if (missing.length > 0) {
   console.error(`FAIL missing tables: ${missing.join(", ")}`);
+  process.exit(1);
+}
+
+const { rows: buckets } = await db.query<{ id: string }>("select id from storage.buckets");
+const bucketIds = new Set(buckets.map((row) => row.id));
+const missingBuckets = REQUIRED_BUCKETS.filter((id) => !bucketIds.has(id));
+if (missingBuckets.length > 0) {
+  console.error(`FAIL missing storage buckets: ${missingBuckets.join(", ")}`);
   process.exit(1);
 }
 
