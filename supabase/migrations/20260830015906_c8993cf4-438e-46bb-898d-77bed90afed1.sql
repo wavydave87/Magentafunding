@@ -1,0 +1,1 @@
+GRANT SELECT ON public.public_deal_view TO anon, authenticated;
