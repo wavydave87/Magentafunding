@@ -1,0 +1,1 @@
+revoke all on function public.partner_members_self_update_guard() from public, anon, authenticated;

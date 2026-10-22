@@ -1,0 +1,1 @@
+UPDATE public.partner_organizations SET status = 'suspended' WHERE code = 'SFB001';

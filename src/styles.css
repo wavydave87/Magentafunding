@@ -1,0 +1,275 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Magenta Client Offer Tool design system.
+ * Brand: Deep Magenta #8F4585, Dark Purple #53026B, Charcoal #474747,
+ * Gold #ECA62B, Coral #DC675E. Questrial headings, Jost body.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", "Manrope", ui-sans-serif, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-plum: var(--plum);
+  --color-plum-foreground: var(--plum-foreground);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-coral: var(--coral);
+  --color-coral-foreground: var(--coral-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
+  --color-internal: var(--internal);
+  --color-internal-foreground: var(--internal-foreground);
+  --color-selected: var(--selected);
+  --color-selected-border: var(--selected-border);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --shadow-card: 0 1px 2px oklch(0.3 0.16 305 / 0.06), 0 12px 32px -12px oklch(0.3 0.16 305 / 0.18);
+  --shadow-lift: 0 2px 4px oklch(0.3 0.16 305 / 0.08), 0 24px 48px -18px oklch(0.3 0.16 305 / 0.28);
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.993 0.003 330);
+  --foreground: oklch(0.33 0.005 300);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.33 0.005 300);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.33 0.005 300);
+  --primary: oklch(0.485 0.128 341);
+  --primary-foreground: oklch(0.99 0.004 330);
+  --plum: oklch(0.295 0.155 306);
+  --plum-foreground: oklch(0.98 0.006 330);
+  --secondary: oklch(0.965 0.011 335);
+  --secondary-foreground: oklch(0.35 0.09 330);
+  --muted: oklch(0.968 0.006 330);
+  --muted-foreground: oklch(0.53 0.015 320);
+  --accent: oklch(0.955 0.018 336);
+  --accent-foreground: oklch(0.4 0.11 340);
+  --destructive: oklch(0.628 0.155 25);
+  --destructive-foreground: oklch(0.99 0.004 330);
+  --coral: oklch(0.628 0.155 25);
+  --coral-foreground: oklch(0.99 0.004 330);
+  --gold: oklch(0.775 0.135 74);
+  --gold-foreground: oklch(0.3 0.05 70);
+  --success: oklch(0.56 0.11 165);
+  --success-foreground: oklch(0.99 0.004 330);
+  --success-soft: oklch(0.965 0.03 165);
+  --internal: oklch(0.955 0.03 90);
+  --internal-foreground: oklch(0.42 0.08 72);
+  /* Highlight surface for a chosen offer card (soft pink, magenta edge). */
+  --selected: oklch(0.987 0.009 337);
+  --selected-border: oklch(0.485 0.128 341);
+  --selected-ring: 0 0 0 1.5px color-mix(in oklab, oklch(0.485 0.128 341) 28%, transparent);
+
+  --border: oklch(0.91 0.01 330);
+  --input: oklch(0.91 0.01 330);
+  --ring: oklch(0.485 0.128 341);
+  --chart-1: oklch(0.485 0.128 341);
+  --chart-2: oklch(0.295 0.155 306);
+  --chart-3: oklch(0.775 0.135 74);
+  --chart-4: oklch(0.628 0.155 25);
+  --chart-5: oklch(0.53 0.015 320);
+  --sidebar: oklch(0.99 0.006 332);
+  --sidebar-foreground: oklch(0.33 0.005 300);
+  --sidebar-primary: oklch(0.485 0.128 341);
+  --sidebar-primary-foreground: oklch(0.99 0.004 330);
+  --sidebar-accent: oklch(0.955 0.018 336);
+  --sidebar-accent-foreground: oklch(0.4 0.11 340);
+  --sidebar-border: oklch(0.91 0.01 330);
+  --sidebar-ring: oklch(0.485 0.128 341);
+}
+
+.dark {
+  --background: oklch(0.19 0.03 305);
+  --foreground: oklch(0.96 0.006 330);
+  --card: oklch(0.24 0.04 305);
+  --card-foreground: oklch(0.96 0.006 330);
+  --popover: oklch(0.24 0.04 305);
+  --popover-foreground: oklch(0.96 0.006 330);
+  --primary: oklch(0.62 0.13 341);
+  --primary-foreground: oklch(0.15 0.03 305);
+  --plum: oklch(0.35 0.15 306);
+  --plum-foreground: oklch(0.97 0.006 330);
+  --secondary: oklch(0.29 0.05 310);
+  --secondary-foreground: oklch(0.96 0.006 330);
+  --muted: oklch(0.29 0.05 310);
+  --muted-foreground: oklch(0.72 0.02 320);
+  --accent: oklch(0.32 0.06 320);
+  --accent-foreground: oklch(0.96 0.006 330);
+  --destructive: oklch(0.66 0.16 25);
+  --destructive-foreground: oklch(0.15 0.03 305);
+  --coral: oklch(0.66 0.16 25);
+  --coral-foreground: oklch(0.15 0.03 305);
+  --gold: oklch(0.79 0.135 74);
+  --gold-foreground: oklch(0.2 0.04 70);
+  --success: oklch(0.68 0.12 165);
+  --success-foreground: oklch(0.16 0.03 165);
+  --success-soft: oklch(0.3 0.05 165);
+  --internal: oklch(0.32 0.05 80);
+  --internal-foreground: oklch(0.87 0.1 80);
+  --selected: oklch(0.255 0.038 335);
+  --selected-border: oklch(0.62 0.13 341);
+  --selected-ring: 0 0 0 1.5px color-mix(in oklab, oklch(0.62 0.13 341) 32%, transparent);
+
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.62 0.13 341);
+  --chart-1: oklch(0.62 0.13 341);
+  --chart-2: oklch(0.5 0.15 306);
+  --chart-3: oklch(0.79 0.135 74);
+  --chart-4: oklch(0.66 0.16 25);
+  --chart-5: oklch(0.72 0.02 320);
+  --sidebar: oklch(0.22 0.04 305);
+  --sidebar-foreground: oklch(0.96 0.006 330);
+  --sidebar-primary: oklch(0.62 0.13 341);
+  --sidebar-primary-foreground: oklch(0.15 0.03 305);
+  --sidebar-accent: oklch(0.32 0.06 320);
+  --sidebar-accent-foreground: oklch(0.96 0.006 330);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.62 0.13 341);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "kern";
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+}
+
+@utility bg-brand-gradient {
+  background-image: linear-gradient(135deg, var(--plum) 0%, var(--primary) 62%, oklch(0.6 0.12 345) 100%);
+}
+
+@utility bg-brand-wash {
+  background-image: radial-gradient(
+      120% 90% at 8% -10%,
+      oklch(0.485 0.128 341 / 0.1) 0%,
+      transparent 60%
+    ),
+    radial-gradient(90% 80% at 100% 0%, oklch(0.775 0.135 74 / 0.12) 0%, transparent 55%);
+}
+
+@utility text-brand-gradient {
+  background-image: linear-gradient(100deg, var(--plum), var(--primary));
+  background-clip: text;
+  color: transparent;
+}
+
+@utility card-elevated {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+}
+
+@utility bg-rule-gradient {
+  background-image: linear-gradient(
+    90deg,
+    var(--plum),
+    var(--primary),
+    var(--coral),
+    var(--gold)
+  );
+}
+
+@utility bg-hero-sheen {
+  background-image: linear-gradient(120deg, var(--card) 55%, var(--accent) 100%);
+}
+
+/* Single source of truth for the chosen/accepted offer highlight. The merchant
+   "selected offer" card and the sales "accepted" card share these tokens so the
+   two surfaces can never drift apart. */
+@utility card-selected {
+  background-color: var(--selected);
+  border-color: var(--selected-border);
+  box-shadow: var(--selected-ring);
+}
+
+@utility card-accepted {
+  background-color: var(--selected);
+  border-color: var(--selected-border);
+  box-shadow: var(--selected-ring);
+}
+
+
+/* Sales-side highlight for offers with an open revision request. */
+@utility card-revision {
+  background-color: var(--internal);
+  border-color: var(--gold);
+}
+
+
+
+/* Consistent, visible keyboard focus for the public offer surfaces. */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+input[type="range"] {
+  accent-color: var(--primary);
+}
+
+input[type="range"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+}

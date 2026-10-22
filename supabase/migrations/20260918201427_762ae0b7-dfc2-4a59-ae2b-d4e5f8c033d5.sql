@@ -1,0 +1,2 @@
+UPDATE public.partner_organizations SET status = 'active' WHERE code = 'SFB001';
+DELETE FROM public.partner_referrals WHERE merchant_business_name IN ('QA Disposable Bakery LLC', 'QA Admin Owned Fixture');
