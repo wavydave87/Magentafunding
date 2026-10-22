@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertNotSelfLockout, validateNewPassword } from "@/lib/account-rules";
 
 interface NewRepInput {
   email: string;
@@ -38,12 +39,10 @@ export const claimFirstAdmin = createServerFn({ method: "POST" })
       .upsert({ id: context.userId, full_name: email.split("@")[0] ?? "Admin", email });
     if (profileError) throw new Error(profileError.message);
 
-    const { error: roleError } = await supabaseAdmin
-      .from("user_roles")
-      .insert([
-        { user_id: context.userId, role: "admin" },
-        { user_id: context.userId, role: "rep" },
-      ]);
+    const { error: roleError } = await supabaseAdmin.from("user_roles").insert([
+      { user_id: context.userId, role: "admin" },
+      { user_id: context.userId, role: "rep" },
+    ]);
     if (roleError) throw new Error(roleError.message);
 
     return { ok: true };
@@ -81,9 +80,7 @@ export const createRepAccount = createServerFn({ method: "POST" })
     });
     if (profileError) throw new Error(profileError.message);
 
-    const roles: { user_id: string; role: "admin" | "rep" }[] = [
-      { user_id: userId, role: "rep" },
-    ];
+    const roles: { user_id: string; role: "admin" | "rep" }[] = [{ user_id: userId, role: "rep" }];
     if (data.is_admin) roles.push({ user_id: userId, role: "admin" });
     const { error: roleError } = await supabaseAdmin.from("user_roles").insert(roles);
     if (roleError) throw new Error(roleError.message);
@@ -97,19 +94,146 @@ export const listRepAccounts = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const [{ data: reps, error }, { data: roles }] = await Promise.all([
+    const [{ data: reps, error }, { data: roles }, { data: users }] = await Promise.all([
       supabaseAdmin
         .from("rep_profiles")
         .select("id, full_name, email, phone, created_at")
         .order("created_at", { ascending: true }),
       supabaseAdmin.from("user_roles").select("user_id, role"),
+      supabaseAdmin.auth.admin.listUsers({ perPage: 1000 }),
     ]);
     if (error) throw new Error(error.message);
 
-    return (reps ?? []).map((rep) => ({
-      ...rep,
-      roles: (roles ?? [])
-        .filter((r) => r.user_id === rep.id)
-        .map((r) => r.role as string),
-    }));
+    return (reps ?? []).map((rep) => {
+      const authUser = users?.users.find((u) => u.id === rep.id) as
+        { banned_until?: string | null } | undefined;
+      const bannedUntil = authUser?.banned_until ?? null;
+      return {
+        ...rep,
+        is_self: rep.id === context.userId,
+        disabled: Boolean(bannedUntil && new Date(bannedUntil) > new Date()),
+        roles: (roles ?? []).filter((r) => r.user_id === rep.id).map((r) => r.role as string),
+      };
+    });
+  });
+
+interface UpdateRepInput {
+  id: string;
+  full_name: string;
+  email: string;
+  phone?: string;
+}
+
+export const updateRepAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: UpdateRepInput) => {
+    if (!input?.id) throw new Error("Missing account.");
+    if (!input.full_name?.trim()) throw new Error("Full name is required.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email ?? ""))
+      throw new Error("A valid email address is required.");
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const email = data.email.trim().toLowerCase();
+
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(data.id, {
+      email,
+      email_confirm: true,
+    });
+    if (authError) throw new Error(authError.message);
+
+    const { error } = await supabaseAdmin
+      .from("rep_profiles")
+      .update({ full_name: data.full_name.trim(), email, phone: data.phone?.trim() || null })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const setRepAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string; is_admin: boolean }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (!data.is_admin) assertNotSelfLockout(context.userId, data.id, "remove_admin");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (data.is_admin) {
+      const { error } = await supabaseAdmin
+        .from("user_roles")
+        .upsert({ user_id: data.id, role: "admin" }, { onConflict: "user_id,role" });
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await supabaseAdmin
+        .from("user_roles")
+        .delete()
+        .eq("user_id", data.id)
+        .eq("role", "admin");
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const resetUserPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string; password: string }) => {
+    const msg = validateNewPassword(input?.password ?? "", input?.password ?? "");
+    if (msg) throw new Error(msg);
+    return input;
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, {
+      password: data.password,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const setUserDisabled = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string; disabled: boolean }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (data.disabled) assertNotSelfLockout(context.userId, data.id, "disable");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, {
+      ban_duration: data.disabled ? "876000h" : "none",
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const listPartnerMemberAccounts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const [{ data: members, error }, { data: users }] = await Promise.all([
+      supabaseAdmin
+        .from("partner_members")
+        .select("user_id, full_name, email, role, status, organization:partner_organizations(name)")
+        .not("user_id", "is", null)
+        .order("full_name", { ascending: true }),
+      supabaseAdmin.auth.admin.listUsers({ perPage: 1000 }),
+    ]);
+    if (error) throw new Error(error.message);
+
+    return (members ?? []).map((member) => {
+      const authUser = users?.users.find((u) => u.id === member.user_id) as
+        { banned_until?: string | null } | undefined;
+      const bannedUntil = authUser?.banned_until ?? null;
+      return {
+        user_id: member.user_id,
+        full_name: member.full_name,
+        email: member.email,
+        organization_name: member.organization?.name ?? "",
+        role: member.role as string,
+        status: member.status as string,
+        disabled: Boolean(bannedUntil && new Date(bannedUntil) > new Date()),
+      };
+    });
   });
