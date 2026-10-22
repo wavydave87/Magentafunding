@@ -24,3 +24,17 @@ export function assertNotSelfLockout(
     );
   }
 }
+
+/**
+ * Admins may not change their own sign-in in either direction: a disabled
+ * admin's access token stays valid for up to an hour and must not be able to
+ * lift their own ban.
+ */
+export function assertMayChangeSignIn(actorId: string, targetId: string): void {
+  if (actorId === targetId) throw new Error("You can't change your own sign-in.");
+}
+
+/** True while a Supabase `banned_until` timestamp is still in the future. */
+export function isBanned(bannedUntil: string | null | undefined, now: Date = new Date()): boolean {
+  return Boolean(bannedUntil && new Date(bannedUntil) > now);
+}

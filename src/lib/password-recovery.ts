@@ -17,16 +17,29 @@ export function isRecoveryHash(hash: string): boolean {
 }
 
 /**
- * The URL hash as it was when the app booted. The Supabase client clears the
- * hash as soon as it initialises, which can happen before the reset page
- * mounts, so the page reads this snapshot instead of window.location.hash.
- * This module is imported by src/router.tsx so the snapshot is taken first.
+ * Returns a reader that yields `initial` once and an empty string afterwards,
+ * so a boot-time snapshot only applies to the first page that asks for it.
  */
-const bootHash = typeof window === "undefined" ? "" : window.location.hash;
-
-export function hashAtBoot(): string {
-  return bootHash;
+export function createHashSnapshot(initial: string): () => string {
+  let pending = initial;
+  return () => {
+    const value = pending;
+    pending = "";
+    return value;
+  };
 }
+
+/**
+ * The URL hash as it was when the app booted, readable once. The Supabase
+ * client clears the hash as soon as it initialises, which can happen before
+ * the reset page mounts, so the page reads this snapshot as well as
+ * window.location.hash. This module is imported by src/router.tsx so the
+ * snapshot is taken first. Reading it once keeps a later visit to the page in
+ * the same tab from being mistaken for a fresh recovery link.
+ */
+export const hashAtBoot = createHashSnapshot(
+  typeof window === "undefined" ? "" : window.location.hash,
+);
 
 /**
  * Where a signed-in visitor who is not mid-recovery should change their

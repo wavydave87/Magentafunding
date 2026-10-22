@@ -1,7 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { assertNotSelfLockout, validateNewPassword } from "@/lib/account-rules";
+import {
+  assertMayChangeSignIn,
+  assertNotSelfLockout,
+  isBanned,
+  validateNewPassword,
+} from "@/lib/account-rules";
 
 interface NewRepInput {
   email: string;
@@ -55,6 +60,16 @@ async function assertAdmin(context: { supabase: any; userId: string }) {
   });
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Forbidden");
+  // A banned user's access token stays valid until it expires; refuse it here
+  // so a disabled admin can't keep using admin functions in that window.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: actor, error: actorError } = await supabaseAdmin.auth.admin.getUserById(
+    context.userId,
+  );
+  if (actorError) throw new Error(actorError.message);
+  if (isBanned((actor.user as { banned_until?: string | null } | null)?.banned_until)) {
+    throw new Error("Forbidden");
+  }
 }
 
 export const createRepAccount = createServerFn({ method: "POST" })
@@ -111,7 +126,7 @@ export const listRepAccounts = createServerFn({ method: "POST" })
       return {
         ...rep,
         is_self: rep.id === context.userId,
-        disabled: Boolean(bannedUntil && new Date(bannedUntil) > new Date()),
+        disabled: isBanned(bannedUntil),
         roles: (roles ?? []).filter((r) => r.user_id === rep.id).map((r) => r.role as string),
       };
     });
@@ -197,7 +212,7 @@ export const setUserDisabled = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string; disabled: boolean }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    if (data.disabled) assertNotSelfLockout(context.userId, data.id, "disable");
+    assertMayChangeSignIn(context.userId, data.id);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, {
       ban_duration: data.disabled ? "876000h" : "none",
@@ -233,7 +248,7 @@ export const listPartnerMemberAccounts = createServerFn({ method: "POST" })
         organization_name: member.organization?.name ?? "",
         role: member.role as string,
         status: member.status as string,
-        disabled: Boolean(bannedUntil && new Date(bannedUntil) > new Date()),
+        disabled: isBanned(bannedUntil),
       };
     });
   });

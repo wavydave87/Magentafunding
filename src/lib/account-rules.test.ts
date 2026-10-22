@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { assertNotSelfLockout, validateNewPassword } from "./account-rules";
+import {
+  assertMayChangeSignIn,
+  assertNotSelfLockout,
+  isBanned,
+  validateNewPassword,
+} from "./account-rules";
 
 describe("validateNewPassword", () => {
   it("rejects passwords shorter than 8 characters", () => {
@@ -36,5 +41,28 @@ describe("assertNotSelfLockout", () => {
   });
   it("allows acting on another user", () => {
     expect(() => assertNotSelfLockout("a", "b", "disable")).not.toThrow();
+  });
+});
+
+describe("assertMayChangeSignIn", () => {
+  it("blocks an admin turning their own sign-in back on", () => {
+    expect(() => assertMayChangeSignIn("a", "a")).toThrow("You can't change your own sign-in.");
+  });
+  it("allows changing another user's sign-in", () => {
+    expect(() => assertMayChangeSignIn("a", "b")).not.toThrow();
+  });
+});
+
+describe("isBanned", () => {
+  const now = new Date("2026-10-22T12:00:00Z");
+  it("treats a future banned_until as banned", () => {
+    expect(isBanned("2126-10-22T12:00:00Z", now)).toBe(true);
+  });
+  it("treats a past banned_until as not banned", () => {
+    expect(isBanned("2026-10-21T12:00:00Z", now)).toBe(false);
+  });
+  it("treats a missing banned_until as not banned", () => {
+    expect(isBanned(null, now)).toBe(false);
+    expect(isBanned(undefined, now)).toBe(false);
   });
 });

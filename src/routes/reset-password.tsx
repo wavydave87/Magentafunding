@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { BrandFooter, BrandHeader } from "@/components/brand";
@@ -53,11 +53,14 @@ function ResetPassword() {
   const [confirm, setConfirm] = useState("");
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
+  const bootHash = useRef<string | null>(null);
 
   useEffect(() => {
+    // Read the one-time boot snapshot once per visit, even if the effect re-runs.
+    bootHash.current ??= hashAtBoot();
     // Supabase clears the hash once it has read it, so check both the boot
     // snapshot and whatever is still in the address bar.
-    const hashes = [hashAtBoot(), window.location.hash];
+    const hashes = [bootHash.current, window.location.hash];
     if (hashes.some((hash) => parseRecoveryHash(hash).error)) {
       setMode("expired");
       return;

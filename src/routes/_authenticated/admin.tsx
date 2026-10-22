@@ -358,7 +358,12 @@ function EditRepForm({
           <p className="text-xs text-muted-foreground">
             You can't remove your own admin access or turn off your own sign-in.
           </p>
-        ) : null}
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Turning sign-in off stops new sign-ins right away. Someone already signed in can stay
+            signed in for up to an hour.
+          </p>
+        )}
       </div>
 
       <form

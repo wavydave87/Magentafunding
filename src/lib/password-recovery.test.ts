@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import type { PortalIdentity } from "@/hooks/use-portal-identity";
 
-import { isRecoveryHash, parseRecoveryHash, signedInResetTarget } from "./password-recovery";
+import {
+  createHashSnapshot,
+  isRecoveryHash,
+  parseRecoveryHash,
+  signedInResetTarget,
+} from "./password-recovery";
 
 function identity(overrides: Partial<PortalIdentity>): PortalIdentity {
   return {
@@ -74,5 +79,13 @@ describe("signedInResetTarget", () => {
 
   it("returns null for a session with no staff or partner identity", () => {
     expect(signedInResetTarget(identity({}))).toBeNull();
+  });
+});
+
+describe("createHashSnapshot", () => {
+  it("returns the boot hash on the first read only", () => {
+    const take = createHashSnapshot("#access_token=x&type=recovery");
+    expect(take()).toBe("#access_token=x&type=recovery");
+    expect(take()).toBe("");
   });
 });
