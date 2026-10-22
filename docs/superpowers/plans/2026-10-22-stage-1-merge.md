@@ -20,7 +20,7 @@
 - Password rule: at least 8 characters (`MIN_PASSWORD_LENGTH = 8`) and confirmation must match.
 - Existing tests keep passing: `delivery-state`, `phone`, `schedule`, `portal-routing`, `schedule-ui`, `deals.tap-targets`, `offer.tap-targets`.
 - Do not change product behavior beyond this plan; lifecycle, merchant hub and design work belong to stages 2–4.
-- Leave fonts as they are in this stage. (The repo uses Manrope/Sora; the Offer Portal used Questrial/Jost. The owner decides in stage 4.)
+- Leave fonts as they are in this stage. Stage 4 switches to the brand guide's Futura PT, or to Jost as the open stand-in (see spec section 6).
 
 ## Review Focus
 

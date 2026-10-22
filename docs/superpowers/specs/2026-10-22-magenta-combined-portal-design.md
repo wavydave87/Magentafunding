@@ -161,7 +161,11 @@ Method: diff each file between the two exports. Where the Offer Portal changed a
 
 Apply the `apple-design` skill through shared tokens and components (`src/styles.css`, `src/components/ui/*`, shared shells), not per-screen overrides.
 
-- Keep the Magenta palette, Questrial/Jost fonts and logo.
+- Follow the Magenta Brand Guide (Goodwood Consulting):
+  - **Type:** Futura PT Book for body copy and Futura PT Bold for headlines. Questrial appears only inside the logo artwork and is not used for UI text. On the web, use Futura PT through Adobe Fonts if Magenta has a licence; otherwise use **Jost**, the open-source Futura-style face (400 for body, 700 for headlines). This replaces the repo's current Manrope/Sora.
+  - **Primary colours:** Deep Magenta `#8F4585` (logo), Black `#000000`, White `#FFFFFF`, Charcoal `#474747`.
+  - **Secondary colours, used sparingly (charts, data visualisation, status):** Dark Purple `#53026B`, Light Purple (the guide prints `#8F4585`, which is the Deep Magenta value, though the swatch is a pale lilac of about `#C094BB`; confirm with the owner), Gold `#ECA62B`, Coral `#DC675E`.
+  - **Logo:** only in deep magenta, gray, black or white. Never recoloured, skewed, restyled, re-cased, outlined or given shadows or effects, and always with its clear space.
 - Deep magenta (`--primary`) is the single accent for interactive elements. Gold, coral and green are reserved for meaning (attention, error, success).
 - The four-colour `bg-rule-gradient` under the header becomes a thin, quiet hairline. Remove most gradients and tinted page washes (`bg-brand-wash`, `bg-hero-sheen`).
 - White cards with soft shadows; translucent sticky headers.
